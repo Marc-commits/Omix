@@ -97,7 +97,7 @@ download.file(url = "https://raw.githubusercontent.com/eleonore-schneeg/OmixData
 download.file(url = "https://raw.githubusercontent.com/eleonore-schneeg/OmixData/main/GO_Biological_Process_2021.txt",destfile=GO_fp)
 
 
-synapser::synLogin(email=Sys.getenv("SYNAPSE_ID"), password=Sys.getenv("SYNAPSE_PASSWORD"))
+synapser::synLogin(email=Sys.getenv("SYNAPSE_ID"), authToken=Sys.getenv("AUTHTOKEN"))
 rawdata_rna <- read.csv(synapser::synGet('syn51516100')$path, header=T, stringsAsFactors = F, row.names=1)
 rawdata_protein <- read.csv(synapser::synGet('syn51516105')$path, header=T, stringsAsFactors = F, row.names=1)
 map_rna <-read.csv(synapser::synGet('syn51516102')$path, header=T, stringsAsFactors = F, row.names=1)
@@ -287,6 +287,7 @@ multiomics_object=vertical_integration(multiassay=multiomics_object,
                                 num_factors = 15,
                                 scale_views = FALSE,
                                 most_variable_feature=TRUE)
+
 ```
 
 

@@ -97,7 +97,7 @@ download.file(url = "https://raw.githubusercontent.com/eleonore-schneeg/OmixData
 
 download.file(url = "https://raw.githubusercontent.com/eleonore-schneeg/OmixData/main/Enrichr_Queries.gmt.txt",destfile=TF_fp)
 
-synapser::synLogin(email=Sys.getenv("SYNAPSE_ID"), password=Sys.getenv("SYNAPSE_PASSWORD"))
+synapser::synLogin(email=Sys.getenv("SYNAPSE_ID"), authToken=Sys.getenv("AUTHTOKEN"))
 rawdata_rna <- read.csv(synapser::synGet('syn51533734')$path, header=T, stringsAsFactors = F, row.names=1)
 rawdata_protein <- read.csv(synapser::synGet('syn51533735')$path, header=T, stringsAsFactors = F, row.names=1)
 map_rna <-read.csv(synapser::synGet('syn51533731')$path, header=T, stringsAsFactors = F, row.names=1)

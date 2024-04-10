@@ -290,7 +290,7 @@ integrate_with_MOFA <- function(multimodal_omics,
     training_options = train_opts
   )
   
-  MOFAobject <- MOFA2::run_mofa(MOFAobject, use_basilisk = TRUE)
+  MOFAobject <- MOFA2::run_mofa(MOFAobject, use_basilisk = FALSE)
   metadata$sample <- rownames(metadata)
   MOFA2::samples_metadata(MOFAobject) <- metadata
   model <- MOFAobject
@@ -362,7 +362,7 @@ integrate_with_MEFISTO <- function(multimodal_omics,
     mefisto_options = mefisto_opts
   )
 
-  MOFAobject <- MOFA2::run_mofa(MOFAobject, use_basilisk = TRUE)
+  MOFAobject <- MOFA2::run_mofa(MOFAobject, use_basilisk = FALSE)
   metadata$sample <- rownames(metadata)
   MOFA2::samples_metadata(MOFAobject) <- metadata
   model <- MOFAobject

@@ -53,3 +53,4 @@ jobs:
             SYNAPSE_ID=${{ secrets.SYNAPSE_ID }}
             SYNAPSE_PASSWORD=${{ secrets.SYNAPSE_PASSWORD }}
             GH_TOKEN=${{ secrets.GH_TOKEN }}
+            AUTHTOKEN=${{ secrets.AUTHTOKEN }}

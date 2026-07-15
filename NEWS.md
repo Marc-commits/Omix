@@ -1,5 +1,27 @@
 # Omix News
 
+## Omix 1.1.1
+
+* Removed the `synapser` package as a hard build/CI dependency. It's no
+  longer installed in the Docker image, and the `SYNAPSE_ID`/
+  `SYNAPSE_PASSWORD` build secrets are no longer passed to the Docker
+  build in any GitHub Actions workflow -- CI no longer needs Synapse
+  credentials to pass.
+* `Omix_vignette_CV_MTG.Rmd` and `Omix_vignette_MAP_CV_pseudotemporal.Rmd`
+  (which pull their example data from the private, in-house Multi-Omics
+  Atlas Project on Synapse) now detect a missing `synapser` package via
+  `requireNamespace()` and stop with `knitr::knit_exit()`, rendering only
+  descriptive text instead of erroring during vignette build.
+* Re-pinned the Dockerfile's apt package versions, several of which had
+  aged out of the Ubuntu 22.04 mirror since they were first pinned.
+* Added `.dockerignore` so stray non-package files at the repo root (e.g.
+  export artifacts with non-portable filenames) can't get copied into the
+  Docker build context and fail `R CMD check`'s portable-filename check.
+* Added `scripts/docker-ci-check.sh` to emulate the GitHub Actions CI
+  locally: `docker build --check` followed by a full `docker buildx
+  build` (this repo's CI is entirely the Docker build; its final layer
+  runs `devtools::check(error_on = 'error')`).
+
 ## Omix 1.1.0
 
 * `generate_multiassay()`'s `organism` argument now resolves any installed

@@ -6,36 +6,36 @@
 FROM rocker/rstudio:4.2.2
 
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends apt-utils=2.4.11 \
+	&& apt-get install -y --no-install-recommends apt-utils=2.4.14 \
 	&& apt-get install -y --no-install-recommends \
-	python3=3.10.6-1~22.04 \
-	python3-setuptools=59.6.0-1.2ubuntu0.22.04.1 \
-	python3-dev=3.10.6-1~22.04 \
-	python3-pip=22.0.2+dfsg-1ubuntu0.4 \
-	python3-venv=3.10.6-1~22.04 \
-	libcurl4-openssl-dev=7.81.0-1ubuntu1.15 \
-	libcairo2-dev=1.16.0-5ubuntu2 \
-	libfreetype6-dev=2.11.1+dfsg-1ubuntu0.2 \
-	libpng-dev=1.6.37-3build5 \
-	libtiff5-dev=4.3.0-6ubuntu0.7 \
+	python3=3.10.6-1~22.04.1 \
+	python3-setuptools=59.6.0-1.2ubuntu0.22.04.3 \
+	python3-dev=3.10.6-1~22.04.1 \
+	python3-pip=22.0.2+dfsg-1ubuntu0.7 \
+	python3-venv=3.10.6-1~22.04.1 \
+	libcurl4-openssl-dev=7.81.0-1ubuntu1.25 \
+	libcairo2-dev=1.16.0-5ubuntu2.1 \
+	libfreetype6-dev=2.11.1+dfsg-1ubuntu0.3 \
+	libpng-dev=1.6.37-3ubuntu0.5 \
+	libtiff5-dev=4.3.0-6ubuntu0.13 \
 	libjpeg-dev=8c-2ubuntu10 \
 	libxt-dev=1:1.2.1-1 \
-	libharfbuzz-dev=2.7.4-1ubuntu3.1 \
+	libharfbuzz-dev=2.7.4-1ubuntu3.2 \
 	libfribidi-dev=1.0.8-2ubuntu3.1 \
 	## Basic deps
 	gcc=4:11.2.0-1ubuntu1 \
-	gdb=12.1-0ubuntu1~22.04 \
-	libxml2-dev=2.9.13+dfsg-1ubuntu0.3 \
+	gdb=12.1-0ubuntu1~22.04.2 \
+	libxml2-dev=2.9.13+dfsg-1ubuntu0.12 \
 	zlib1g-dev=1:1.2.11.dfsg-2ubuntu9.2 \
-	liblzma-dev=5.2.5-2ubuntu1 \
+	liblzma-dev=5.2.5-2ubuntu1.1 \
 	libbz2-dev=1.0.8-5build1 \
-	libgit2-dev=1.1.0+dfsg.1-4.1build1 \
+	libgit2-dev=1.1.0+dfsg.1-4.1ubuntu0.1 \
 	## sys deps from bioc_full
 	pkg-config=0.29.2-1ubuntu3 \
 	gfortran=4:11.2.0-1ubuntu1 \
 	byacc=1:2.0.20220114-1 \
 	automake=1:1.16.5-1.3 \
-	curl=7.81.0-1ubuntu1.15 \
+	curl=7.81.0-1ubuntu1.25 \
 	## This section installs libraries
 	libpcre2-dev=10.39-3ubuntu0.1 \
 	libnetcdf-dev=1:4.8.1-1 \
@@ -49,32 +49,32 @@ RUN apt-get update \
 	libreadline-dev=8.1.2-1 \
 	libgsl-dev=2.7.1+dfsg-3 \
 	libgslcblas0=2.7.1+dfsg-3 \
-	libgtk2.0-dev=2.24.33-2ubuntu2 \
-	libgl1-mesa-dev=23.0.4-0ubuntu1~22.04.1 \
+	libgtk2.0-dev=2.24.33-2ubuntu2.1 \
+	libgl1-mesa-dev=23.2.1-1ubuntu3.1~22.04.4 \
 	libglu1-mesa-dev=9.0.2-1 \
 	libgmp3-dev=2:6.2.1+dfsg-3ubuntu1 \
-	libncurses-dev=6.3-2ubuntu0.1 \
+	libncurses-dev=6.3-2ubuntu0.2 \
 	libxpm-dev=1:3.5.12-1ubuntu0.22.04.2 \
 	liblapack-dev=3.10.0-2ubuntu1 \
 	libgtkmm-2.4-dev=1:2.24.5-4ubuntu3 \
 	libmpfr-dev=4.1.0-3build3 \
 	libmodule-build-perl=0.423100-1 \
-	libapparmor-dev=3.0.4-2ubuntu2.3 \
-	libprotoc-dev=3.12.4-1ubuntu7.22.04.1 \
-	libmagick++-dev=8:6.9.11.60+dfsg-1.3ubuntu0.22.04.3 \
+	libapparmor-dev=3.0.4-2ubuntu2.5 \
+	libprotoc-dev=3.12.4-1ubuntu7.22.04.6 \
+	libmagick++-dev=8:6.9.11.60+dfsg-1.3ubuntu0.22.04.5 \
 	libsasl2-dev=2.1.27+dfsg2-3ubuntu1.2 \
-	libpoppler-cpp-dev=22.02.0-2ubuntu0.3 \
-	libprotobuf-dev=3.12.4-1ubuntu7.22.04.1 \
-	libpq-dev=14.10-0ubuntu0.22.04.1 \
-	libperl-dev=5.34.0-3ubuntu1.3 \
+	libpoppler-cpp-dev=22.02.0-2ubuntu0.13 \
+	libprotobuf-dev=3.12.4-1ubuntu7.22.04.6 \
+	libpq-dev=14.23-0ubuntu0.22.04.1 \
+	libperl-dev=5.34.0-3ubuntu1.7 \
 	## software - perl extentions and modules
 	libarchive-extract-perl=0.88-1 \
 	libfile-copy-recursive-perl=0.45-1 \
 	libcgi-pm-perl=4.54-1 \
-	libdbi-perl=1.643-3build3 \
+	libdbi-perl=1.643-3ubuntu0.1 \
 	libdbd-mysql-perl=4.050-5ubuntu0.22.04.1 \
 	libxml-simple-perl=2.25-1 \
-	libmysqlclient-dev=8.0.35-0ubuntu0.22.04.1 \
+	libmysqlclient-dev=8.0.46-0ubuntu0.22.04.3 \
 	default-libmysqlclient-dev=1.0.8 \
 	libgdal-dev=3.4.1+dfsg-1build4 \
 	## new libs
@@ -88,11 +88,11 @@ RUN apt-get update \
 	tcl8.6-dev=8.6.12+dfsg-1build1 \
 	tk-dev=8.6.11+1build2 \
 	default-jdk=2:1.11-72build2 \
-	imagemagick=8:6.9.11.60+dfsg-1.3ubuntu0.22.04.3 \
+	imagemagick=8:6.9.11.60+dfsg-1.3ubuntu0.22.04.5 \
 	tabix=1.13+ds-2build1 \
 	ggobi=2.1.11-2build1 \
-	graphviz=2.42.2-6 \
-	protobuf-compiler=3.12.4-1ubuntu7.22.04.1 \
+	graphviz=2.42.2-6ubuntu0.1 \
+	protobuf-compiler=3.12.4-1ubuntu7.22.04.6 \
 	jags=4.3.0-3build1 \
 	## Additional resources
 	xfonts-100dpi=1:1.0.4+nmu1.1 \
@@ -100,10 +100,10 @@ RUN apt-get update \
 	biber=2.17-2 \
 	libsbml5-dev=5.19.0+dfsg-1ubuntu2 \
 	## qpdf needed to stop R CMD Check warning
-	qpdf=10.6.3-1 \
+	qpdf=10.6.3-1ubuntu0.1 \
 	#cmake
 	build-essential=12.9ubuntu3 \
-	wget=1.21.2-2ubuntu1 \
+	wget=1.21.2-2ubuntu1.3 \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& wget https://github.com/Kitware/CMake/releases/download/v3.24.1/cmake-3.24.1-Linux-x86_64.sh \
@@ -188,18 +188,12 @@ MASS \
 ActivePathways
 # RUN Rscript -e  'reticulate::py_config()'
 
-RUN R -e "install.packages('synapser', repos=c('http://ran.synapse.org', 'http://cran.fhcrc.org'))"
-
 WORKDIR /app/omix
 COPY . .
 
 # Run R CMD check - will fail with any errors or warnings
-RUN --mount=type=secret,id=SYNAPSE_ID \
---mount=type=secret,id=SYNAPSE_PASSWORD \
---mount=type=secret,id=GH_TOKEN \
+RUN --mount=type=secret,id=GH_TOKEN \
 echo "GH_TOKEN=$(cat /run/secrets/GH_TOKEN)" >> "${HOME}/.Renviron" \
-&& echo "SYNAPSE_ID=$(cat /run/secrets/SYNAPSE_ID)" >> "${HOME}/.Renviron" \
-&& echo "SYNAPSE_PASSWORD=$(cat /run/secrets/SYNAPSE_PASSWORD)" >> "${HOME}/.Renviron" \
 && Rscript -e "devtools::check(error_on = 'error')"
 
 # Install R package from source

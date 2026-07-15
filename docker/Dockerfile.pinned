@@ -160,7 +160,6 @@ reshape2 \
 reticulate \
 rmarkdown \
 table1 \
-testthat \
 tibble \
 tidyr \
 stringr \

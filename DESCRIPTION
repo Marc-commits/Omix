@@ -1,6 +1,6 @@
 Package: Omix
 Title: A Multi-Omics Integration Pipeline
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: 
     c(
     person(given = "Eleonore",
@@ -21,10 +21,11 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
-    BiocStyle
+    BiocStyle,
+    testthat (>= 3.0.0)
 biocViews:
 Imports: 
       basetheme,
@@ -95,3 +96,4 @@ Imports:
       pheatmap,
       PCAtools
 VignetteBuilder: knitr
+Config/testthat/edition: 3

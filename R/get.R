@@ -287,23 +287,51 @@ get_multimodal_object <- function(multiassay,
 
 #' Get module functional annotation
 #'
+#' Uses `WGCNA::GOenrichmentAnalysis()`, which only supports a small,
+#' hardcoded set of organisms (human, mouse, rat, fly, worm). For any other
+#' `organism`, module GO annotation is skipped with a warning rather than
+#' attempted, since there is no generic substitute for WGCNA's own organism
+#' whitelist.
+#'
 #' @param gene_list Character vector of genes belonging to a module
 #' @param moduleColors from WGCNA
+#' @param organism Organism passed to `WGCNA::GOenrichmentAnalysis()`.
+#' Only `"human"` and `"mouse"` are supported; any other value returns
+#' `NULL` with a warning. Default to `"human"`.
 #'
-#' @return Functional annotation of modules
+#' @return Functional annotation of modules, or `NULL` if `organism` isn't
+#' supported by `WGCNA::GOenrichmentAnalysis()`.
 #' @importFrom AnnotationDbi mapIds
 #' @importFrom WGCNA GOenrichmentAnalysis
 #' @importFrom org.Hs.eg.db org.Hs.eg.db
+#' @importFrom org.Mm.eg.db org.Mm.eg.db
+#' @importFrom cli cli_alert_warning
 #' @keywords internal
 #'
 get_module_annotation <- function(gene_list,
-                                  moduleColors) {
+                                  moduleColors,
+                                  organism = "human") {
+  if (!organism %in% c("human", "mouse")) {
+    cli::cli_alert_warning(paste(
+      "get_module_annotation() only supports organism \"human\" or",
+      "\"mouse\" (a limitation of WGCNA::GOenrichmentAnalysis(), which has",
+      "its own fixed organism list) -- skipping module GO annotation for",
+      "organism", paste0("\"", organism, "\".")
+    ))
+    return(NULL)
+  }
+
+  orgdb <- if (organism == "mouse") {
+    org.Mm.eg.db::org.Mm.eg.db
+  } else {
+    org.Hs.eg.db::org.Hs.eg.db
+  }
   entrez <- AnnotationDbi::mapIds(
-    org.Hs.eg.db::org.Hs.eg.db, sub("\\_.*", "", gene_list),
+    orgdb, sub("\\_.*", "", gene_list),
     "ENTREZID", "SYMBOL"
   )
   GOenr <- WGCNA::GOenrichmentAnalysis(moduleColors, entrez,
-    organism = "human",
+    organism = organism,
     nBestP = 1, ontologies = "BP"
   )
   tab <- GOenr$bestPTerms$BP$forModule

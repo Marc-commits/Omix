@@ -77,8 +77,30 @@ devtools::install_github("eleonore-schneeg/Omix")
       -   Publication quality plots and analysis reports
       
   Omix implements these modular steps and displays results in interactive reports.
-  
-  
+
+
+## Organism support
+
+`generate_multiassay()`'s `organism` argument accepts `"human"` (backed by
+`EnsDb.Hsapiens.v86`) and `"mouse"` (backed by `org.Mm.eg.db`) out of the
+box, and, beyond those two, the name of *any* installed Bioconductor
+annotation package following the `org.*.eg.db` naming convention -- e.g.
+`"org.EcK12.eg.db"` for *E. coli* K-12. Such a package can be built for any
+organism with no existing one, including most bacteria/archaea, via
+[`AnnotationForge::makeOrgPackage()`](https://bioconductor.org/packages/release/bioc/vignettes/AnnotationForge/inst/doc/MakingNewOrganismPackages.html).
+For organisms with no package at all, a user-supplied `annotation`
+data.frame (e.g. exported from Prokka/Bakta/eggNOG-mapper) can be passed
+instead. See `vignette("Omix_vignette_prokaryote")` for a worked example.
+
+A few downstream features remain eukaryote/mammalian-specific and don't
+apply to prokaryotic data: cell-type enrichment via `EWCE`, target
+validation via `OpenTargets`, `integrated_enrichment_multiGSEA()`,
+pseudotime inference, and WGCNA module GO annotation
+(`get_module_annotation()`, limited to the organisms
+`WGCNA::GOenrichmentAnalysis()` itself supports). None of these are called
+automatically by the core pipeline -- they're opt-in and can simply be
+skipped.
+
 ## Getting started
 
 The Getting Started section of the documentation contains downloadable examples on how to use Omix.

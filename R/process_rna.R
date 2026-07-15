@@ -6,7 +6,12 @@
 #' @param transformation transformation method to choose from. Available methods
 #' are vst, rlog, and log2.
 #' @param filter Logical whether to perform gene filtering
-#' @param protein_coding Logical whether to filter out non protein coding genes
+#' @param protein_coding Logical whether to filter out non protein coding
+#' genes. Requires `gene_biotype` annotation on the `rna_raw` slot, which is
+#' only populated when `organism` resolves to `human`, `mouse`, an
+#' installed `org.*.eg.db` package, or a supplied `annotation` table with a
+#' `gene_biotype` column (see `generate_multiassay()`); otherwise this is a
+#' no-op with a warning.
 #' @param min_count Minimum count
 #' @param min_sample Percentage of samples that have at least the `min_count`,
 #' or else the gene is filtered out
@@ -32,7 +37,7 @@
 #' @importFrom DESeq2 DESeqDataSetFromMatrix counts
 #' @importFrom stats prcomp model.matrix
 #' @importFrom magrittr set_names
-#' @importFrom cli cli_alert_danger style_bold cli_alert_success
+#' @importFrom cli cli_alert_danger cli_alert_warning style_bold cli_alert_success
 #' @importFrom limma removeBatchEffect
 #' @importFrom dplyr %>%
 #'
@@ -144,11 +149,20 @@ process_rna <- function(multiassay,
   if (filter == TRUE) {
     cli::cli_alert_success("GENE FILTERING")
     if (protein_coding == TRUE) {
+      gene_biotype <- SummarizedExperiment::rowData(rna_raw)$gene_biotype
+      if (is.null(gene_biotype) || all(is.na(gene_biotype))) {
+        cli::cli_alert_warning(paste(
+          "No gene_biotype annotation available -- skipping protein_coding",
+          "filtering. This is expected for organisms with no resolved",
+          "annotation source (see `organism`/`annotation` in",
+          "`generate_multiassay()`); pass `protein_coding = FALSE` to",
+          "silence this warning."
+        ))
+      } else {
       cli::cli_alert_success("Keeping only protein coding genes")
       suppressMessages({
-      protein_coding_keep <- SummarizedExperiment::rowData(
-        rna_raw)$gene_biotype == "protein_coding" &
-        !is.na(SummarizedExperiment::rowData(rna_raw)$gene_biotype)
+      protein_coding_keep <- gene_biotype == "protein_coding" &
+        !is.na(gene_biotype)
       dds <- dds[protein_coding_keep, ]
       })
       cli::cli_alert_success(paste(
@@ -165,6 +179,7 @@ process_rna <- function(multiassay,
                                                   percentage_protein_coding= dim2/dim1,
                                                   protein_coding_kept= dim2)
       dim1=dim2
+      }
     }
     cli::cli_alert_success(paste(
       "QC parameters selected require genes to have at least",

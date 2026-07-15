@@ -6,10 +6,10 @@
 /*.html
 /*.html:Zone.Identifier
 /*.txt
-/CHANGES.md
-/HADOLINT_FIXES.md
-/Dockerfile.pinned
-/Dockerfile.pinned_and_linted
+
+# Nothing under docker/ (Dockerfile itself, build.sh, leftover pinning notes)
+# needs to be present inside the built image/package source tree.
+/docker
 
 .git
 .Rproj.user

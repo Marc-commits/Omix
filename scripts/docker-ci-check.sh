@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Emulates the GitHub Actions CI for this repo locally.
 #
-# All of check-standard.yaml / r_package_dev*.yaml do is build ./Dockerfile;
+# All of check-standard.yaml / r_package_dev*.yaml do is build ./docker/Dockerfile;
 # the final layer of that Dockerfile runs `devtools::check(error_on = 'error')`,
 # so the Docker build *is* the CI. This script reproduces it:
 #   1. `docker build --check`  -- fast Dockerfile lint/best-practice check
@@ -24,7 +24,7 @@ if [[ "${1:-}" == "--check-only" ]]; then
 fi
 
 echo "==> docker build --check (Dockerfile lint)"
-DOCKER_BUILDKIT=1 docker build --check -f Dockerfile .
+DOCKER_BUILDKIT=1 docker build --check -f docker/Dockerfile .
 
 if ${CHECK_ONLY}; then
 	echo "==> --check-only requested, skipping full build"
@@ -37,7 +37,7 @@ printf '%s' "${GH_TOKEN:-dummy}" >"${GH_TOKEN_FILE}"
 
 echo "==> docker buildx build (full build, runs devtools::check() inside the image)"
 DOCKER_BUILDKIT=1 docker buildx build \
-	-f Dockerfile \
+	-f docker/Dockerfile \
 	--secret id=GH_TOKEN,src="${GH_TOKEN_FILE}" \
 	-t omix-ci-local:latest \
 	--load \

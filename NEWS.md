@@ -1,5 +1,22 @@
 # Omix News
 
+## Omix 1.1.2
+
+* Moved Docker-related files into a `docker/` directory: `Dockerfile` is now
+  `docker/Dockerfile`, and the leftover `Dockerfile.pinned`,
+  `Dockerfile.pinned_and_linted`, `HADOLINT_FIXES.md`, `CHANGES.md` scratch
+  files from an earlier apt-pinning pass moved there too. `.dockerignore`
+  stays at the repo root (the build context) and now excludes `/docker`
+  entirely, since none of its contents need to end up inside the built
+  image or R source tarball.
+* Updated all four GitHub Actions workflows' `file:` path to
+  `./docker/Dockerfile`, and `scripts/docker-ci-check.sh`'s `-f` flags to
+  match.
+* Added `docker/build.sh`: a minimal script that just builds the image
+  (`docker/build.sh [tag]`, defaults to `omix:latest`). For the full CI
+  emulation (Dockerfile lint check + build), use
+  `scripts/docker-ci-check.sh` as before.
+
 ## Omix 1.1.1
 
 * Removed the `synapser` package as a hard build/CI dependency. It's no

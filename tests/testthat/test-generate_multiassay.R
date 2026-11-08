@@ -33,9 +33,10 @@ test_that("organism = 'mouse' resolves via org.Mm.eg.db with a corrected GENETYP
 })
 
 test_that("organism resolves to any installed org.*.eg.db package (generic OrgDb path)", {
-  # Reuses org.Hs.eg.db (already a hard dependency) purely as a stand-in
-  # for a bacterial annotation package like org.EcK12.eg.db, so this test
-  # needs no extra dependency to exercise the dynamic-package-load path.
+  # Reuses org.Hs.eg.db (an optional dependency, skipped if absent) purely as
+  # a stand-in for a bacterial annotation package like org.EcK12.eg.db, so
+  # this test needs no extra dependency to exercise the dynamic-package-load
+  # path.
   skip_if_not_installed("org.Hs.eg.db")
   d <- mk_synthetic_multiomics(
     rna_ids = c("TP53", "BRCA1"),

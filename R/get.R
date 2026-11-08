@@ -303,8 +303,6 @@ get_multimodal_object <- function(multiassay,
 #' supported by `WGCNA::GOenrichmentAnalysis()`.
 #' @importFrom AnnotationDbi mapIds
 #' @importFrom WGCNA GOenrichmentAnalysis
-#' @importFrom org.Hs.eg.db org.Hs.eg.db
-#' @importFrom org.Mm.eg.db org.Mm.eg.db
 #' @importFrom cli cli_alert_warning
 #' @keywords internal
 #'
@@ -321,6 +319,14 @@ get_module_annotation <- function(gene_list,
     return(NULL)
   }
 
+  pkg <- if (organism == "mouse") "org.Mm.eg.db" else "org.Hs.eg.db"
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    cli::cli_alert_warning(paste0(
+      "get_module_annotation() needs the package \"", pkg, "\" for organism \"",
+      organism, "\", which is not installed -- skipping module GO annotation."
+    ))
+    return(NULL)
+  }
   orgdb <- if (organism == "mouse") {
     org.Mm.eg.db::org.Mm.eg.db
   } else {

@@ -59,7 +59,8 @@ rownames are same as the colnames of \code{rawdata_rna} data.frame.}
 
 \item{organism}{The organism type for transcripts and proteins. Possible
 values are \code{human} (uses \code{EnsDb.Hsapiens.v86}), \code{mouse} (uses
-\code{org.Mm.eg.db}), or the name of any other installed Bioconductor
+\code{org.Mm.eg.db}; both are optional packages, install the one you need), or
+the name of any other installed Bioconductor
 annotation package following the \code{org.*.eg.db} naming convention (e.g.
 \code{"org.EcK12.eg.db"} for \emph{E. coli} K-12). Such a package can be built for
 any organism, including bacteria/archaea with no existing package, via

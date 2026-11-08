@@ -10,7 +10,6 @@
 #'
 #' @importFrom fgsea fgsea collapsePathways
 #' @importFrom dplyr filter arrange desc %>%
-#' @importFrom msigdbr msigdbr
 #' @importFrom ActivePathways read.GMT
 #' @importFrom data.table as.data.table
 #' @export

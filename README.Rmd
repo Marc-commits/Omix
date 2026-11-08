@@ -82,8 +82,9 @@ devtools::install_github("eleonore-schneeg/Omix")
 ## Organism support
 
 `generate_multiassay()`'s `organism` argument accepts `"human"` (backed by
-`EnsDb.Hsapiens.v86`) and `"mouse"` (backed by `org.Mm.eg.db`) out of the
-box, and, beyond those two, the name of *any* installed Bioconductor
+`EnsDb.Hsapiens.v86`) and `"mouse"` (backed by `org.Mm.eg.db`) once the
+respective package is installed (both are optional dependencies, listed under
+`Suggests`), and, beyond those two, the name of *any* installed Bioconductor
 annotation package following the `org.*.eg.db` naming convention -- e.g.
 `"org.EcK12.eg.db"` for *E. coli* K-12. Such a package can be built for any
 organism with no existing one, including most bacteria/archaea, via

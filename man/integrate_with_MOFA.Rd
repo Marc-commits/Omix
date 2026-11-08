@@ -26,6 +26,11 @@ a list object with \code{multimodal_object} and \code{model} slots
 \description{
 Vertical integration with MOFA
 }
+\details{
+MOFA2 runs its Python backend through basilisk by default. Set
+\code{options(omix.use_basilisk = FALSE)} to use the Python found by reticulate
+(e.g. \code{RETICULATE_PYTHON}) instead; it has to provide \code{mofapy2}.
+}
 \seealso{
 Other Multi-omic integration: 
 \code{\link{getClustNum}()},

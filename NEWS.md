@@ -1,5 +1,23 @@
 # Omix News
 
+## Omix 1.1.3
+
+* `EnsDb.Hsapiens.v86`, `org.Hs.eg.db`, `org.Mm.eg.db` and `msigdbr` moved
+  from `Imports` to `Suggests`. They were only used for `organism = "human"`
+  or `"mouse"` (`msigdbr` only in commented-out code), yet made every
+  installation of Omix, including ones for bacteria, pull in the human and
+  mouse annotation databases. `generate_multiassay()` now stops with an
+  install hint if the package for the chosen human/mouse organism is missing;
+  `get_module_annotation()` skips with a warning. Anyone using
+  `organism = "human"` or `"mouse"` must install the package: the Docker image
+  built from `docker/Dockerfile` no longer includes them
+  (`remotes::install_local()` does not install `Suggests`).
+* New option `omix.use_basilisk` (default `TRUE`) for `integrate_with_MOFA()`
+  and `integrate_with_MEFISTO()`. `options(omix.use_basilisk = FALSE)` makes
+  MOFA2 use the Python found by reticulate (e.g. `RETICULATE_PYTHON`, with
+  `mofapy2` installed) instead of building a basilisk conda environment.
+  Default behaviour is unchanged.
+
 ## Omix 1.1.2
 
 * Moved Docker-related files into a `docker/` directory: `Dockerfile` is now

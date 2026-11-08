@@ -1,6 +1,6 @@
 Package: Omix
 Title: A Multi-Omics Integration Pipeline
-Version: 1.1.2
+Version: 1.1.3
 Authors@R: 
     c(
     person(given = "Eleonore",
@@ -25,7 +25,11 @@ Suggests:
     knitr,
     rmarkdown,
     BiocStyle,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    EnsDb.Hsapiens.v86,
+    msigdbr,
+    org.Hs.eg.db,
+    org.Mm.eg.db
 biocViews:
 Imports: 
       basetheme,
@@ -40,7 +44,6 @@ Imports:
       edgeR,
       enrichplot,
       enrichR,
-      EnsDb.Hsapiens.v86,
       EWCE,
       fgsea,
       ggplot2,
@@ -56,11 +59,8 @@ Imports:
       magrittr,
       matrixStats,
       mixOmics,
-      msigdbr,
       SummarizedExperiment,
       MultiAssayExperiment,
-      org.Hs.eg.db,
-      org.Mm.eg.db,
       plotly,
       psych,
       purrr,

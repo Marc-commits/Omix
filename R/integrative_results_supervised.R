@@ -22,7 +22,6 @@
 #' @importFrom purrr possibly
 #' @importFrom clusterProfiler enrichGO compareCluster
 #' @importFrom enrichplot pairwise_termsim
-#' @importFrom org.Hs.eg.db org.Hs.eg.db
 #' @importFrom MOFA2 get_weights correlate_factors_with_covariates plot_variance_explained
 #' @export
 
@@ -365,7 +364,6 @@ integrative_results_sparse_supervised <- function(multiassay,
 #' @importFrom purrr possibly
 #' @importFrom clusterProfiler enrichGO compareCluster
 #' @importFrom enrichplot pairwise_termsim
-#' @importFrom org.Hs.eg.db org.Hs.eg.db
 #' @importFrom MOFA2 get_weights correlate_factors_with_covariates plot_variance_explained
 #' @export
 

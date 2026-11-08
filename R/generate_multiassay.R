@@ -31,7 +31,8 @@
 #' rownames are same as the colnames of `rawdata_rna` data.frame.
 #' @param organism The organism type for transcripts and proteins. Possible
 #' values are `human` (uses `EnsDb.Hsapiens.v86`), `mouse` (uses
-#' `org.Mm.eg.db`), or the name of any other installed Bioconductor
+#' `org.Mm.eg.db`; both are optional packages, install the one you need), or
+#' the name of any other installed Bioconductor
 #' annotation package following the `org.*.eg.db` naming convention (e.g.
 #' `"org.EcK12.eg.db"` for *E. coli* K-12). Such a package can be built for
 #' any organism, including bacteria/archaea with no existing package, via
@@ -53,8 +54,6 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom magrittr set_names
 #' @importFrom cli cli_alert_danger cli_alert_warning style_bold cli_alert_success
-#' @importFrom org.Mm.eg.db org.Mm.eg.db
-#' @importFrom EnsDb.Hsapiens.v86 EnsDb.Hsapiens.v86
 #' @export
 generate_multiassay <- function(rawdata_rna,
                                 rawdata_protein,
@@ -272,9 +271,11 @@ generate_multiassay <- function(rawdata_rna,
 #' @keywords internal
 resolve_annotation_source <- function(organism, annotation) {
   if (organism == "human") {
+    require_optional("EnsDb.Hsapiens.v86", "organism = \"human\"")
     return(list(db = EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86, class = "EnsDb"))
   }
   if (organism == "mouse") {
+    require_optional("org.Mm.eg.db", "organism = \"mouse\"")
     return(list(db = org.Mm.eg.db::org.Mm.eg.db, class = "OrgDb"))
   }
   if (requireNamespace(organism, quietly = TRUE)) {

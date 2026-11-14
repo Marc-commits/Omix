@@ -4,17 +4,26 @@
 \alias{get_module_annotation}
 \title{Get module functional annotation}
 \usage{
-get_module_annotation(gene_list, moduleColors)
+get_module_annotation(gene_list, moduleColors, organism = "human")
 }
 \arguments{
 \item{gene_list}{Character vector of genes belonging to a module}
 
 \item{moduleColors}{from WGCNA}
+
+\item{organism}{Organism passed to \code{WGCNA::GOenrichmentAnalysis()}.
+Only \code{"human"} and \code{"mouse"} are supported; any other value returns
+\code{NULL} with a warning. Default to \code{"human"}.}
 }
 \value{
-Functional annotation of modules
+Functional annotation of modules, or \code{NULL} if \code{organism} isn't
+supported by \code{WGCNA::GOenrichmentAnalysis()}.
 }
 \description{
-Get module functional annotation
+Uses \code{WGCNA::GOenrichmentAnalysis()}, which only supports a small,
+hardcoded set of organisms (human, mouse, rat, fly, worm). For any other
+\code{organism}, module GO annotation is skipped with a warning rather than
+attempted, since there is no generic substitute for WGCNA's own organism
+whitelist.
 }
 \keyword{internal}

@@ -26,7 +26,12 @@ process_rna(
 \item{transformation}{transformation method to choose from. Available methods
 are vst, rlog, and log2.}
 
-\item{protein_coding}{Logical whether to filter out non protein coding genes}
+\item{protein_coding}{Logical whether to filter out non protein coding
+genes. Requires \code{gene_biotype} annotation on the \code{rna_raw} slot, which is
+only populated when \code{organism} resolves to \code{human}, \code{mouse}, an
+installed \code{org.*.eg.db} package, or a supplied \code{annotation} table with a
+\code{gene_biotype} column (see \code{generate_multiassay()}); otherwise this is a
+no-op with a warning.}
 
 \item{filter}{Logical whether to perform gene filtering}
 

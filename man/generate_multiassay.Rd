@@ -16,7 +16,8 @@ generate_multiassay(
   map_by_column,
   rna_qc_data = FALSE,
   rna_qc_data_matrix,
-  organism = "human"
+  organism = "human",
+  annotation = NULL
 )
 }
 \arguments{
@@ -56,8 +57,23 @@ and \code{metadata_protein} to the \code{individual_metadata}}
 \item{rna_qc_data_matrix}{A data.frame containing RNA qc level data where
 rownames are same as the colnames of \code{rawdata_rna} data.frame.}
 
-\item{organism}{The organism type for transcripts and proteins.
-Possible values are \code{human} and \code{mouse}. Default to \code{human}.}
+\item{organism}{The organism type for transcripts and proteins. Possible
+values are \code{human} (uses \code{EnsDb.Hsapiens.v86}), \code{mouse} (uses
+\code{org.Mm.eg.db}; both are optional packages, install the one you need), or
+the name of any other installed Bioconductor
+annotation package following the \code{org.*.eg.db} naming convention (e.g.
+\code{"org.EcK12.eg.db"} for \emph{E. coli} K-12). Such a package can be built for
+any organism, including bacteria/archaea with no existing package, via
+\code{AnnotationForge::makeOrgPackage()}. Default to \code{human}.}
+
+\item{annotation}{Optional data.frame used as a fallback gene/protein
+annotation source when \code{organism} does not resolve to \code{human}, \code{mouse},
+or an installed annotation package (e.g. a species with no \code{org.*.eg.db}
+package available, annotated instead via Prokka/Bakta/eggNOG-mapper).
+Rownames must match the raw RNA/protein IDs (\code{rownames(rawdata_rna)} /
+\code{rownames(rawdata_protein)}); recognised columns are \code{gene_name} and,
+optionally, \code{gene_biotype}. Ignored when \code{organism} resolves to an
+annotation package. Default to \code{NULL}.}
 }
 \value{
 a MultiAssayExperiment object

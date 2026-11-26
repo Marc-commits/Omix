@@ -51,7 +51,7 @@ Transcription_Factor_enrichment <- function(communities,
     x[grepl("_rna", x, fixed = TRUE)]
   })
   communities_rna <- lapply(communities_rna, function(x) {
-    sub("\\_.*", "", x)
+    strip_view_suffix(x)
   })
   names(communities_rna) <- paste0("ME", names(communities_rna))
   gom.obj <- GeneOverlap::newGOM(communities_rna, new, genome.size = nrow(weights$weights_df$rna))

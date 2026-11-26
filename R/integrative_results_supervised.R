@@ -22,7 +22,6 @@
 #' @importFrom purrr possibly
 #' @importFrom clusterProfiler enrichGO compareCluster
 #' @importFrom enrichplot pairwise_termsim
-#' @importFrom org.Hs.eg.db org.Hs.eg.db
 #' @importFrom MOFA2 get_weights correlate_factors_with_covariates plot_variance_explained
 #' @export
 
@@ -107,14 +106,14 @@ integrative_results_sparse_supervised <- function(multiassay,
   cell_type <- list()
   args=list( multiassay = multiassay,
              communities = lapply(communities_pos_neg$positive$communities, function(x) {
-               sub("\\_.*", "", x)
+               strip_view_suffix(x)
              }),
              ctd=ctd)
   cell_type$positive <- do.call(cell_type_enrichment,args)
   
   args=list( multiassay = multiassay,
              communities = lapply(communities_pos_neg$negative$communities, function(x) {
-               sub("\\_.*", "", x)
+               strip_view_suffix(x)
              }),
              ctd=ctd)
   
@@ -123,10 +122,10 @@ integrative_results_sparse_supervised <- function(multiassay,
   cli::cli_text("Functional enrichment of communities...")
 
   communities_positive <- lapply(communities_pos_neg$positive$communities, function(x) {
-    sub("\\_.*", "", x)
+    strip_view_suffix(x)
   })
   communities_negative <- lapply(communities_pos_neg$negative$communities, function(x) {
-    sub("\\_.*", "", x)
+    strip_view_suffix(x)
   })
 
   enrichment <- list()
@@ -365,7 +364,6 @@ integrative_results_sparse_supervised <- function(multiassay,
 #' @importFrom purrr possibly
 #' @importFrom clusterProfiler enrichGO compareCluster
 #' @importFrom enrichplot pairwise_termsim
-#' @importFrom org.Hs.eg.db org.Hs.eg.db
 #' @importFrom MOFA2 get_weights correlate_factors_with_covariates plot_variance_explained
 #' @export
 
@@ -447,14 +445,14 @@ integrative_results_supervised <- function(multiassay,
   cell_type <- list()
   args=list( multiassay = multiassay,
              communities = lapply(communities_pos_neg$positive$communities, function(x) {
-               sub("\\_.*", "", x)
+               strip_view_suffix(x)
              }),
              ctd=ctd)
   cell_type$positive <- do.call(cell_type_enrichment,args)
   
   args=list( multiassay = multiassay,
              communities = lapply(communities_pos_neg$negative$communities, function(x) {
-               sub("\\_.*", "", x)
+               strip_view_suffix(x)
              }),
              ctd=ctd)
 
@@ -465,10 +463,10 @@ integrative_results_supervised <- function(multiassay,
   cli::cli_text("Functional enrichment of communities...")
 
   communities_positive <- lapply(communities_pos_neg$positive$communities, function(x) {
-    sub("\\_.*", "", x)
+    strip_view_suffix(x)
   })
   communities_negative <- lapply(communities_pos_neg$negative$communities, function(x) {
-    sub("\\_.*", "", x)
+    strip_view_suffix(x)
   })
 
   enrichment <- list()
@@ -766,7 +764,7 @@ Transcription_Factor_enrichment_supervised <- function(multiassay,
     x[grepl("_rna", x, fixed = TRUE)]
   })
   communities_rna <- lapply(communities_rna, function(x) {
-    sub("\\_.*", "", x)
+    strip_view_suffix(x)
   })
   names(communities_rna) <- paste0("ME", names(communities_rna))
   if(length(communities_rna)>=2){
@@ -843,8 +841,8 @@ extract_loadings <- function(integrated_object,
   rna_1 <- data.frame(loadings = integrated_object$loadings$mRNA[, component])
   protein_1 <- data.frame(loadings = integrated_object$loadings$proteins[, component])
 
-  rna_1$Row.names <- sub("\\_.*", "", rownames(rna_1))
-  protein_1$Row.names <- sub("\\_.*", "", rownames(protein_1))
+  rna_1$Row.names <- strip_view_suffix(rownames(rna_1))
+  protein_1$Row.names <- strip_view_suffix(rownames(protein_1))
 
   colnames(rna_1) <- c("Weights", "Feature")
   colnames(protein_1) <- c("Weights", "Feature")

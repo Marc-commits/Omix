@@ -33,7 +33,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           load: true
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           tags: |
             eleonore-schneeg/omix:${{ env.packageVersion }}
             eleonore-schneeg/omix:latest

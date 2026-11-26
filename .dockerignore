@@ -1,0 +1,17 @@
+# Keep the Docker build context (and hence the R source tarball built
+# inside it) limited to actual package content. Loose scratch/export files
+# that sometimes end up at the repo root -- e.g. HTML exports with
+# full-width colons in their names -- fail R CMD check's "checking for
+# portable file names" step if they get copied into the image.
+/*.html
+/*.html:Zone.Identifier
+/*.txt
+
+# Nothing under docker/ (Dockerfile itself, build.sh, leftover pinning notes)
+# needs to be present inside the built image/package source tree.
+/docker
+
+.git
+.Rproj.user
+*.Rproj
+docs

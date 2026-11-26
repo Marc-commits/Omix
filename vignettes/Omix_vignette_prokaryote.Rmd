@@ -1,0 +1,315 @@
+---
+title: "Omix - Prokaryotic data"
+author: "This vignette was added to adapt Omix beyond eukaryotes"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    self_contained: yes
+    theme: "flatly"
+    toc: yes
+    toc_float: yes
+    fig_caption: yes
+    toc_depth: 3
+    code_folding: show
+    df_print: paged
+vignette: |
+  %\VignetteIndexEntry{Omix - Prokaryotic data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+editor_options:
+  markdown:
+  wrap: 72
+---
+
+```{r style, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+BiocStyle::markdown()
+knitr::opts_chunk$set(tidy = FALSE,
+                      message = TRUE,
+                      warning = FALSE)
+options(knitr.duplicate.label = "allow")
+```
+
+# Overview
+
+Omix was originally built around human and mouse transcriptomics/proteomics,
+via `organism = "human"` (backed by `EnsDb.Hsapiens.v86`) and
+`organism = "mouse"` (backed by `org.Mm.eg.db`) in `generate_multiassay()`.
+Neither Ensembl-gene-ID conventions, gene-biotype annotation, nor these two
+species are universal, so bacterial/archaeal data needs a different
+annotation path into the same pipeline.
+
+`generate_multiassay()`'s `organism` argument now resolves in one of three
+ways:
+
+1. `"human"` / `"mouse"` -- unchanged, built-in annotation.
+2. **Any other string naming an installed Bioconductor annotation package**
+   following the `org.*.eg.db` convention (e.g. `"org.EcK12.eg.db"` for
+   *E. coli* K-12, or `"org.Sco.eg.db"` for *Streptomyces coelicolor*).
+   Such a package can be built for *any* organism with no existing
+   package -- including essentially all non-model bacteria/archaea -- via
+   [`AnnotationForge::makeOrgPackage()`](https://bioconductor.org/packages/release/bioc/vignettes/AnnotationForge/inst/doc/MakingNewOrganismPackages.html)
+   from a Prokka/Bakta/eggNOG-mapper annotation.
+3. If neither of the above resolves, a user-supplied **`annotation`
+   data.frame** (rownames matching the raw RNA/protein IDs, with `gene_name`
+   and optionally `gene_biotype` columns) is used instead -- the practical
+   default for a freshly-annotated draft genome with no Bioconductor
+   package at all.
+
+If none of the three resolve, Omix does **not** error: it emits a warning
+and continues with the raw IDs as gene names and no biotype annotation
+(so, e.g., `process_rna(..., protein_coding = TRUE)` becomes a no-op with
+its own warning, rather than silently dropping every gene).
+
+This vignette walks through both non-eukaryote paths on a small synthetic
+bacterial dataset, and notes which downstream Omix features remain
+eukaryote/mammalian-specific and should be skipped.
+
+```{r results='asis', message=FALSE, warning=FALSE}
+library(Omix)
+library(SummarizedExperiment)
+```
+
+# Synthetic bacterial dataset
+
+We simulate a tiny RNA + protein dataset for a hypothetical bacterium,
+with locus-tag-style feature IDs (e.g. `STM0001`, as used by *Salmonella*
+Typhimurium and similarly by many other RefSeq/Prokka/Bakta bacterial
+annotations).
+
+```{r}
+set.seed(1)
+n_genes <- 20
+n_samples <- 6
+locus_tags <- paste0("STM", sprintf("%04d", seq_len(n_genes)))
+
+rawdata_rna <- as.data.frame(
+  matrix(rnbinom(n_genes * n_samples, mu = 200, size = 5),
+         nrow = n_genes, dimnames = list(locus_tags, paste0("s", seq_len(n_samples))))
+)
+rawdata_protein <- as.data.frame(
+  matrix(rpois(n_genes * n_samples, lambda = 500),
+         nrow = n_genes, dimnames = list(locus_tags, paste0("s", seq_len(n_samples))))
+)
+
+individual_metadata <- data.frame(
+  id = colnames(rawdata_rna),
+  diagnosis = rep(c("control", "treated"), length.out = n_samples),
+  condition = rep(c(0, 1, 1, 0), length.out = n_samples) # a covariate, independent of `diagnosis`
+)
+metadata_rna <- individual_metadata[, -1, drop = FALSE]
+rownames(metadata_rna) <- individual_metadata$id
+metadata_protein <- metadata_rna
+
+map_rna <- data.frame(primary = colnames(rawdata_rna), colname = colnames(rawdata_rna))
+map_protein <- data.frame(primary = colnames(rawdata_protein), colname = colnames(rawdata_protein))
+```
+
+# Path A -- a real installed `org.*.eg.db` package
+
+If a Bioconductor annotation package exists for your organism, pass its
+package name directly as `organism`. It's resolved dynamically via
+`requireNamespace()`, so this works the same way for any package
+following the `org.*.eg.db` convention -- including ones built with
+`AnnotationForge::makeOrgPackage()`.
+
+This chunk only runs if `org.EcK12.eg.db` happens to be installed (it
+isn't one of Omix's own dependencies, so the base install doesn't carry
+it) -- it's here to show what the fully-automatic path looks like when a
+package is available, without forcing every Omix install to carry an
+annotation package for every possible demo organism.
+
+```{r eval=requireNamespace("org.EcK12.eg.db", quietly = TRUE)}
+multiassay_pkg <- generate_multiassay(
+  rawdata_rna = rawdata_rna,
+  rawdata_protein = rawdata_protein,
+  individual_to_sample = FALSE,
+  map_rna = map_rna,
+  map_protein = map_protein,
+  metadata_rna = metadata_rna,
+  metadata_protein = metadata_protein,
+  individual_metadata = individual_metadata,
+  map_by_column = "id",
+  rna_qc_data = FALSE,
+  rna_qc_data_matrix = NULL,
+  organism = "org.EcK12.eg.db"
+)
+
+head(SummarizedExperiment::rowData(multiassay_pkg[["rna_raw"]]))
+```
+
+# Path B -- no package available: a user-supplied annotation table
+
+Most non-model bacteria/archaea have no Bioconductor annotation package.
+The practical path there is a small annotation table -- for example
+exported from Prokka/Bakta (`.tsv`) or eggNOG-mapper output -- with
+rownames matching the raw IDs and `gene_name`/`gene_biotype` columns.
+
+```{r}
+annotation_table <- data.frame(
+  gene_name = paste0("gene", seq_len(n_genes)),
+  gene_biotype = rep(c("protein_coding", "ncRNA"), c(16, 4)),
+  row.names = locus_tags
+)
+head(annotation_table)
+
+multiassay <- generate_multiassay(
+  rawdata_rna = rawdata_rna,
+  rawdata_protein = rawdata_protein,
+  individual_to_sample = FALSE,
+  map_rna = map_rna,
+  map_protein = map_protein,
+  metadata_rna = metadata_rna,
+  metadata_protein = metadata_protein,
+  individual_metadata = individual_metadata,
+  map_by_column = "id",
+  rna_qc_data = FALSE,
+  rna_qc_data_matrix = NULL,
+  organism = "salmonella_typhimurium", # not an installed package -> falls back to `annotation`
+  annotation = annotation_table
+)
+
+SummarizedExperiment::rowData(multiassay[["rna_raw"]])
+```
+
+## What happens with no annotation source at all
+
+If `organism` doesn't resolve and no `annotation` table is supplied
+either, Omix warns and continues rather than erroring -- gene names fall
+back to the raw IDs, and biotype is left unset:
+
+```{r}
+multiassay_bare <- generate_multiassay(
+  rawdata_rna = rawdata_rna,
+  rawdata_protein = rawdata_protein,
+  individual_to_sample = FALSE,
+  map_rna = map_rna,
+  map_protein = map_protein,
+  metadata_rna = metadata_rna,
+  metadata_protein = metadata_protein,
+  individual_metadata = individual_metadata,
+  map_by_column = "id",
+  rna_qc_data = FALSE,
+  rna_qc_data_matrix = NULL,
+  organism = "salmonella_typhimurium"
+)
+```
+
+# Processing transcriptomics data
+
+`process_rna()`'s `protein_coding` filter needs `gene_biotype` annotation.
+With Path B's annotation table (which included `gene_biotype`), it works
+as normal:
+
+```{r}
+multiassay <- process_rna(
+  multiassay = multiassay,
+  transformation = "log2",
+  protein_coding = TRUE,
+  min_count = 1,
+  min_sample = 0.1,
+  dependent = "diagnosis",
+  levels = c("control", "treated"),
+  covariates = "condition",
+  filter = TRUE,
+  batch_correction = FALSE,
+  batch = NULL,
+  remove_sample_outliers = FALSE
+)
+```
+
+Without any resolved `gene_biotype` (the "no annotation source" case
+above), leave `protein_coding = FALSE` -- otherwise `process_rna()` skips
+the filter itself, with a warning, rather than dropping every gene:
+
+```{r}
+multiassay_bare <- process_rna(
+  multiassay = multiassay_bare,
+  transformation = "log2",
+  protein_coding = FALSE,
+  min_count = 1,
+  min_sample = 0.1,
+  dependent = "diagnosis",
+  levels = c("control", "treated"),
+  covariates = "condition",
+  filter = TRUE,
+  batch_correction = FALSE,
+  batch = NULL,
+  remove_sample_outliers = FALSE
+)
+```
+
+# Downstream analysis: what carries over unchanged, and what doesn't
+
+The rest of the pipeline splits into three groups:
+
+## Organism-agnostic (no changes needed)
+
+Differential expression, WGCNA, sPLS, MOFA2/MEFISTO, DIABLO/sMB-PLS,
+iCluster, network analysis and reporting all operate on the processed
+numeric matrices and don't depend on organism at all:
+
+```{r, eval=FALSE}
+multiassay <- rna_DE_analysis(
+  multiassay = multiassay,
+  dependent = "diagnosis",
+  levels = c("control", "treated"),
+  filter_protein_coding = TRUE,
+  log2FoldChange = 0.2
+)
+
+multiassay <- vertical_integration(
+  multiassay,
+  slots = c("rna_processed", "protein_processed"),
+  integration = "DIABLO",
+  intersect_genes = FALSE,
+  ID_type = "gene_name",
+  dependent = "diagnosis",
+  levels = c("control", "treated"),
+  design = "cor",
+  ncomp = 2,
+  range = list(mRNA = seq(5, 20, by = 5), proteins = seq(5, 20, by = 5))
+)
+```
+
+## Organism-agnostic, but need a non-human gene set / GMT
+
+`GSEA()` (`R/fgsea.R`) and `Transcription_Factor_enrichment()`
+(`R/TF_enrichment.R`) already accept a user-supplied GMT file -- neither
+calls a human-specific database internally. For bacteria, source gene
+sets from:
+
+- **Pathway enrichment** (`GSEA(geneset = ...)`): KEGG bacterial pathway
+  GMTs, COG functional categories, or an eggNOG-mapper GMT export.
+- **TF/regulon enrichment** (`Transcription_Factor_enrichment(TF_gmt = ...)`):
+  a regulon GMT from [RegulonDB](https://regulondb.ccg.unam.mx/) (*E.
+  coli*) or [CollecTF](https://www.collectf.org/) rather than the default
+  Enrichr/CHEA3 (human/mouse) file.
+
+```{r, eval=FALSE}
+bacterial_gmt <- "path/to/kegg_or_cog_pathways.gmt"
+gsea_result <- GSEA(gene_list = ranked_genes, pval = 0.05, geneset = bacterial_gmt)
+```
+
+## Eukaryote/mammalian-specific -- skip these for prokaryotic data
+
+A few Omix features have no bacterial equivalent and should simply not be
+used on prokaryotic data:
+
+- **`EWCE` cell-type enrichment** (`enrichment.R`) -- needs a single-cell
+  reference (`ctd`) of the kind that exists for mammalian tissues, not
+  bacteria.
+- **`open_targets.R`** -- queries the OpenTargets human disease-target
+  platform; there's no bacterial equivalent.
+- **`integrated_enrichment_multiGSEA.R`** -- `multiGSEA`'s pathway
+  databases are themselves restricted to a small set of eukaryotic
+  species.
+- **`get_module_annotation()`** (WGCNA module GO annotation, `get.R`) --
+  its underlying `WGCNA::GOenrichmentAnalysis()` only supports a fixed
+  organism list (human/mouse/rat/fly/worm); for any other `organism` it
+  now warns and returns `NULL` rather than erroring.
+- **Pseudotime/trajectory inference** (`pseudotime_inference.R`) -- a
+  single-cell eukaryotic concept; not meaningful for bulk bacterial data.
+
+None of these are called automatically by `process_rna()`,
+`vertical_integration()`, or the report generators above -- they're
+opt-in functions you simply don't call for a prokaryotic project.

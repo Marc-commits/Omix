@@ -47,8 +47,8 @@ extract_weigths <- function(model,
   rna_1 <- data.frame(weights = weights_rna_1)
   protein_1 <- data.frame(weights = weights_prot_1)
 
-  rna_1$Row.names <- sub("\\_.*", "", rownames(rna_1))
-  protein_1$Row.names <- sub("\\_.*", "", rownames(protein_1))
+  rna_1$Row.names <- strip_view_suffix(rownames(rna_1))
+  protein_1$Row.names <- strip_view_suffix(rownames(protein_1))
 
   colnames(rna_1) <- c("Weights", "Feature")
   colnames(protein_1) <- c("Weights", "Feature")

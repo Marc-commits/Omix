@@ -23,7 +23,8 @@ format_res_deseq(
 \item{n_label}{maximum number of label on volcano plot}
 
 \item{gene_id_conversion}{Default to NULL. Can provide a dataframe
-with \code{gene_name} and \code{uniprot_id} columns to easily convert nomenclature.}
+with \code{gene_name} and \code{gene_biotype} columns, keyed by an \code{ensembl_gene_id}
+or (if that is absent) a \code{feature_id} column matching the rownames of \code{dt}.}
 
 \item{filter_protein_coding}{Logical as whether to filter protein coding gene.
 Default to TRUE.}

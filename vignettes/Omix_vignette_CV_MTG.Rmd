@@ -29,6 +29,19 @@ knitr::opts_chunk$set(tidy = FALSE,
 options(knitr.duplicate.label = "allow")
 ```
 
+```{r synapse-guard, echo=FALSE, results='asis'}
+has_synapser <- requireNamespace("synapser", quietly = TRUE)
+if (!has_synapser) {
+  cat(
+    "This vignette pulls its example data from the private, in-house",
+    "Multi-Omics Atlas Project on Synapse (registered users only, see the",
+    "README). It requires the optional `synapser` package and valid",
+    "`SYNAPSE_ID`/`SYNAPSE_PASSWORD` credentials, neither of which are",
+    "available in this build, so the remainder of this vignette is skipped."
+  )
+  knitr::knit_exit()
+}
+```
 
 # Overview
 
@@ -77,7 +90,6 @@ library(ggplot2)
 library(dplyr)
 library(tibble)
 library(stats)
-library(synapser)
 ```
 
 First we must load the data from Omix for the vignette:

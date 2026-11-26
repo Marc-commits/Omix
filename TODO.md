@@ -10,6 +10,10 @@ numbers are noted below). Re-verified 2026-11-14 against `381eada` (Omix
 (`eleonore-schneeg/Omix`) has no fix. CyanoOmix works around each one
 downstream, so none blocks it.
 
+Scope: anything single-cell-specific (e.g. EWCE `ctd` cell-type enrichment,
+cell-type deconvolution/markers) is out of scope for prokaryote support;
+such code paths are only gated off, not adapted.
+
 ## Bugs (confirmed by running the pipeline, not just reading source)
 
 - [ ] CyanoOmix #5: fix `rna_DE_analysis()`'s `format_res_deseq()` call
@@ -121,6 +125,6 @@ downstream, so none blocks it.
       AnnotationForge-style OrgDb that lacks `GENETYPE`, to catch bugs
       like the above (existing tests only unit-test the
       annotation-resolution layer in isolation).
-- [ ] Consider adding a CI trigger for `feature/prokaryote-support`
-      directly (currently `.github/workflows/` only run on push/PR to
-      `main`/`master` or other named dev branches).
+- [ ] Set up CI: run `testthat` + `R CMD check` on push/PR to
+      `feature/prokaryote-support` (`.github/workflows/` currently only run
+      on `main`/`master` or other named dev branches, and only build Docker).

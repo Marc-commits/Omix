@@ -16,7 +16,7 @@ such code paths are only gated off, not adapted.
 
 ## Bugs (confirmed by running the pipeline, not just reading source)
 
-- [ ] CyanoOmix #5: fix `rna_DE_analysis()`'s `format_res_deseq()` call
+- [x] CyanoOmix #5: fix `rna_DE_analysis()`'s `format_res_deseq()` call
       (`R/DE_formating.R:110-113`), which unconditionally matches
       `gene_id_conversion` against a column literally named
       `ensembl_gene_id` — that column only exists when
@@ -30,7 +30,7 @@ such code paths are only gated off, not adapted.
       `R/protein_DE_analysis.R:195-197`) — mirror that guard in
       `rna_DE_analysis()`/`format_res_deseq()`. Affects any RNA-seq dataset
       whose rownames aren't Ensembl gene IDs, not just prokaryotes.
-- [ ] CyanoOmix #8: fix `extract_weigths()`'s (`R/extract_weights.R:50-51`)
+- [x] CyanoOmix #8: fix `extract_weigths()`'s (`R/extract_weights.R:50-51`)
       feature-name recovery — it calls `sub("\\_.*", "", rownames(rna_1))`
       (and the equivalent for `protein_1`) to undo MOFA2's
       duplicate-across-view renaming (features present in both the `mRNA`
@@ -51,7 +51,7 @@ such code paths are only gated off, not adapted.
       in both views), so it is easy to miss without a full end-to-end test.
       CyanoOmix carries a local `extract_weigths_fixed()` with the
       corrected regex.
-- [ ] CyanoOmix #7: fix `integrate_with_MOFA()`'s
+- [x] CyanoOmix #7: fix `integrate_with_MOFA()`'s
       (`R/integrative_models.R:287,307`; `integrate_with_MEFISTO()` has the
       same pattern at 354/379) metadata pass-through — it calls
       `MOFA2::create_mofa(X)` with no explicit `groups=`, so MOFA2
@@ -68,7 +68,7 @@ such code paths are only gated off, not adapted.
       `group` column from the metadata passed to the setter, or by passing
       real `groups=` through to `create_mofa()`. Not organism-specific.
       CyanoOmix renames its factor from `group` to `condition`.
-- [ ] CyanoOmix #6: fix `get_ID_type()`'s (`R/get.R:145-176`) single-element
+- [x] CyanoOmix #6: fix `get_ID_type()`'s (`R/get.R:145-176`) single-element
       regex heuristic — it only tests the *first* element of a gene/protein
       ID vector against an all-uppercase regex, so mixed-case/locus-tag
       symbols (e.g. `hemA`, `asl0046`) get misclassified as
@@ -81,11 +81,11 @@ such code paths are only gated off, not adapted.
       `ID_type = "original"`. Also covers the older item "review the regex
       heuristic for non-human gene ID casing conventions" (flagged by a test
       comment in `tests/testthat/test-generate_multiassay.R:24-27`).
-- [ ] CyanoOmix #1: fix `process_rna()`'s unguarded `covariates=NULL`
+- [x] CyanoOmix #1: fix `process_rna()`'s unguarded `covariates=NULL`
       formula paste (`R/process_rna.R:73`) — crashes with "unexpected end
       of input"; `process_protein()` already guards this correctly, mirror
       that fix. No existing test exercises `covariates=NULL`.
-- [ ] Guard `annotation_lookup()`'s `GENETYPE` request
+- [x] Guard `annotation_lookup()`'s `GENETYPE` request
       (`R/generate_multiassay.R:328-337`) and the `UNIPROT` keytype
       (`:215`): check `"GENETYPE" %in% AnnotationDbi::columns(db)` (or the
       equivalent keytype validity check for `UNIPROT`) before querying,
@@ -96,7 +96,10 @@ such code paths are only gated off, not adapted.
       `integrative_results_supervised()`/`_unsupervised()`/
       `_sparse_supervised()` so `ctd`/`disease_id` can be `NULL` and the
       internal `cell_type_enrichment()`/`OpenTarget_dataframe()` calls
-      are skipped; gate `multi_omic_report()` the same way.
+      are skipped; gate `multi_omic_report()` the same way. Also make
+      `TF_fp` optional, cover `integrative_results_clustering()`, and skip
+      the matching sections in `inst/rmarkdown/templates/multi_omic/skeleton*.Rmd`
+      (separate PR after 1.1.4).
 
 ## Enrichment defaults and docs
 

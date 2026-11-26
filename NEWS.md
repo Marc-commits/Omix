@@ -1,5 +1,31 @@
 # Omix News
 
+## Omix 1.1.4
+
+Bug fixes for non-Ensembl/prokaryote IDs (numbered as in CyanoOmix's
+"Known Omix/annotation-package limitations"):
+
+* `process_rna()` accepts `covariates = NULL` (#1); the design formula no
+  longer ends in a dangling `+`.
+* `rna_DE_analysis()` joins gene names/biotypes on the raw feature IDs when
+  there is no `ensembl_gene_id` column (#5), so gene symbols and locus tags
+  no longer get all-`NA` gene names. `format_res_deseq()` accepts a
+  `feature_id` key column.
+* `get_ID_type()` classifies the first 100 IDs by majority instead of only
+  the first one, and treats mixed-case symbols and locus tags (`hemA`,
+  `asl0046`, `PCC7120DELTA_RS00010`) as `gene_name` (#6).
+  `get_multimodal_object()` converts only real Ensembl/UniProt IDs, so
+  `vertical_integration()` no longer fails in `make.unique()`. As a result,
+  `generate_multiassay()` now also annotates such protein IDs via `SYMBOL`.
+* `integrate_with_MOFA()`/`integrate_with_MEFISTO()` rename a sample
+  metadata column called `group`, which MOFA2 reserves, to `group_metadata`
+  (#7).
+* Feature IDs that contain underscores survive `extract_weigths()` and the
+  `integrative_results_*()`/network code (#8): only a literal trailing
+  `_mRNA`/`_proteins`/`_rna`/`_protein` suffix is removed.
+* `generate_multiassay()` works with minimal OrgDbs that lack a `GENETYPE`
+  column or a `UNIPROT` keytype (raw IDs and `NA` biotypes, with a warning).
+
 ## Omix 1.1.3
 
 * `EnsDb.Hsapiens.v86`, `org.Hs.eg.db`, `org.Mm.eg.db` and `msigdbr` moved

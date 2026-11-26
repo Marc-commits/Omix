@@ -367,7 +367,7 @@ get_module_annotation <- function(gene_list,
     org.Hs.eg.db::org.Hs.eg.db
   }
   entrez <- AnnotationDbi::mapIds(
-    orgdb, sub("\\_.*", "", gene_list),
+    orgdb, strip_view_suffix(gene_list),
     "ENTREZID", "SYMBOL"
   )
   GOenr <- WGCNA::GOenrichmentAnalysis(moduleColors, entrez,

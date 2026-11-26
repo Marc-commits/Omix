@@ -170,7 +170,7 @@ names(list_results)=names(DE_res)
     cell_type <- list()
     args=list( multiassay = multiassay,
                communities = lapply(communities_pos_neg[[i]]$up$communities, function(x) {
-                 sub("\\_.*", "", x)
+                 strip_view_suffix(x)
                }),
                ctd=ctd)
     cell_type[[i]]$up  <- do.call(cell_type_enrichment,args)
@@ -178,7 +178,7 @@ names(list_results)=names(DE_res)
 
     args=list( multiassay = multiassay,
                communities = lapply(communities_pos_neg[[i]]$down$communities, function(x) {
-                 sub("\\_.*", "", x)
+                 strip_view_suffix(x)
                }),
                ctd=ctd)
     cell_type[[i]]$down <- do.call(cell_type_enrichment,args)
@@ -187,10 +187,10 @@ names(list_results)=names(DE_res)
     cli::cli_text("Functional enrichment of communities...")
 
     communities_up[[i]] <- lapply(communities_pos_neg[[i]]$up$communities, function(x) {
-      sub("\\_.*", "", x)
+      strip_view_suffix(x)
     })
     communities_down[[i]] <- lapply(communities_pos_neg[[i]]$down$communities, function(x) {
-      sub("\\_.*", "", x)
+      strip_view_suffix(x)
     })
 
 

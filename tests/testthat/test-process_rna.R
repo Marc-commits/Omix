@@ -38,3 +38,33 @@ test_that("protein_coding filtering still runs normally when gene_biotype is pre
   expect_true(any(grepl("10 / 30 non protein coding genes were dropped", msgs)))
   expect_true(any(grepl("20 protein coding genes kept for analysis", msgs)))
 })
+
+test_that("covariates = NULL builds a valid design (CyanoOmix #1)", {
+  skip_if_not_installed("DESeq2")
+  ma <- mk_synthetic_multiassay_for_processing(organism = "bacteria_x")
+
+  for (b in list(NULL, "covariate1")) {
+    msgs <- character()
+    err <- tryCatch(
+      withCallingHandlers(
+        process_rna(ma,
+          transformation = "log2", protein_coding = FALSE, filter = TRUE,
+          min_count = 1, min_sample = 0.1, dependent = "diagnosis",
+          levels = NULL, covariates = NULL, batch_correction = TRUE,
+          batch = b
+        ),
+        message = function(m) {
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        }
+      ),
+      error = function(e) conditionMessage(e)
+    )
+    # the old paste() left a dangling "+" ("unexpected end of input")
+    if (is.character(err)) {
+      expect_false(grepl("unexpected end of input", err))
+    }
+    # batch correction (which needs the covariate block) was reached
+    expect_true(any(grepl("BATCH CORRECTION", msgs)))
+  }
+})

@@ -310,6 +310,23 @@ used on prokaryotic data:
 - **Pseudotime/trajectory inference** (`pseudotime_inference.R`) -- a
   single-cell eukaryotic concept; not meaningful for bulk bacterial data.
 
-None of these are called automatically by `process_rna()`,
-`vertical_integration()`, or the report generators above -- they're
-opt-in functions you simply don't call for a prokaryotic project.
+`process_rna()`, `process_protein()` and `vertical_integration()` call
+none of them. The downstream `integrative_results_*()` functions do, unless
+you switch them off: cell-type enrichment runs only when `ctd` is given,
+transcription factor enrichment only when `TF_fp` is given (both default to
+`NULL`), and the Open Targets queries are skipped with `disease_id = NULL`.
+`integrative_results_unsupervised()` also needs `pseudotime_analysis =
+FALSE`. Skipped steps return `NULL`, and `multi_omic_report()` leaves their
+sections out. Their functional enrichment still queries Enrichr's
+human/mouse libraries.
+
+```{r, eval=FALSE}
+multiassay <- integrative_results_unsupervised(
+  multiassay,
+  dependent = "diagnosis",
+  sense_check_variable = "condition",
+  covariates = "condition",
+  pseudotime_analysis = FALSE,
+  disease_id = NULL # ctd and TF_fp default to NULL
+)
+```

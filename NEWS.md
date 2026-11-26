@@ -1,5 +1,21 @@
 # Omix News
 
+## Omix 1.1.5
+
+* The human/mouse-specific steps of `integrative_results_unsupervised()`,
+  `integrative_results_sparse_supervised()`, `integrative_results_supervised()`
+  and `integrative_results_clustering()` can be switched off (CyanoOmix #4):
+  `ctd = NULL` skips EWCE cell type enrichment, `TF_fp = NULL` skips
+  transcription factor enrichment and `disease_id = NULL` skips the Open
+  Targets queries. `ctd` and `TF_fp` now default to `NULL`; `disease_id`
+  keeps its default. Skipped steps leave their result slot `NULL`.
+* `multi_omic_report()` leaves out the cell type, TF and Open Targets
+  sections when their results are `NULL`.
+* `integrative_results_clustering()` keeps the cell type results of every
+  cluster instead of only the last one.
+* The prokaryote vignette no longer claims these steps are never called
+  automatically, and shows how to switch them off.
+
 ## Omix 1.1.4
 
 Bug fixes for non-Ensembl/prokaryote IDs (numbered as in CyanoOmix's

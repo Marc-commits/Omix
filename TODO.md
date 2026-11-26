@@ -92,18 +92,18 @@ such code paths are only gated off, not adapted.
       falling back to NA/none instead of erroring, for OrgDb objects that
       weren't built with that table (e.g. a minimal AnnotationForge-built
       prokaryote OrgDb). Still unguarded in 1.1.3.
-- [ ] CyanoOmix #4: add an organism gate / opt-out to
+- [x] CyanoOmix #4: add an organism gate / opt-out to
       `integrative_results_supervised()`/`_unsupervised()`/
       `_sparse_supervised()` so `ctd`/`disease_id` can be `NULL` and the
       internal `cell_type_enrichment()`/`OpenTarget_dataframe()` calls
       are skipped; gate `multi_omic_report()` the same way. Also make
       `TF_fp` optional, cover `integrative_results_clustering()`, and skip
       the matching sections in `inst/rmarkdown/templates/multi_omic/skeleton*.Rmd`
-      (separate PR after 1.1.4).
+      (done in 1.1.5).
 
 ## Enrichment defaults and docs
 
-- [ ] Fix the false claim in `vignettes/Omix_vignette_prokaryote.Rmd` (the
+- [x] Fix the false claim in `vignettes/Omix_vignette_prokaryote.Rmd` (the
       "None of these are called automatically ... opt-in functions you
       simply don't call" paragraph, ~l.315) that EWCE/OpenTargets/etc. are
       opt-in — the actual `integrative_results_*()` entry points call them

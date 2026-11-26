@@ -253,6 +253,25 @@ mofa_use_basilisk <- function() {
   !isFALSE(getOption("omix.use_basilisk", TRUE))
 }
 
+# MOFA2 reserves the samples_metadata column "group" for its own sample
+# groups (a single "group1" here, as create_mofa() gets no groups=). A user
+# column of that name makes samples_metadata<- fail after training with
+# "Groups names in the model ... and in the metadata do not match", so it is
+# renamed to "group_metadata" before the metadata is attached.
+mofa_safe_metadata <- function(metadata) {
+  if ("group" %in% colnames(metadata)) {
+    new_name <- make.unique(c(colnames(metadata), "group_metadata"))[
+      ncol(metadata) + 1]
+    cli::cli_warn(paste0(
+      "Metadata column 'group' is reserved by MOFA2; renamed to '",
+      new_name, "' in the MOFA model's samples_metadata"
+    ))
+    colnames(metadata)[colnames(metadata) == "group"] <- new_name
+  }
+  metadata$sample <- rownames(metadata)
+  metadata
+}
+
 #' Vertical integration with MOFA
 #'
 #' @details MOFA2 runs its Python backend through basilisk by default. Set
@@ -303,8 +322,7 @@ integrate_with_MOFA <- function(multimodal_omics,
   )
   
   MOFAobject <- MOFA2::run_mofa(MOFAobject, use_basilisk = mofa_use_basilisk())
-  metadata$sample <- rownames(metadata)
-  MOFA2::samples_metadata(MOFAobject) <- metadata
+  MOFA2::samples_metadata(MOFAobject) <- mofa_safe_metadata(metadata)
   model <- MOFAobject
 
 
@@ -375,8 +393,7 @@ integrate_with_MEFISTO <- function(multimodal_omics,
   )
 
   MOFAobject <- MOFA2::run_mofa(MOFAobject, use_basilisk = mofa_use_basilisk())
-  metadata$sample <- rownames(metadata)
-  MOFA2::samples_metadata(MOFAobject) <- metadata
+  MOFA2::samples_metadata(MOFAobject) <- mofa_safe_metadata(metadata)
   model <- MOFAobject
 
 

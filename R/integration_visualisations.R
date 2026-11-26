@@ -179,7 +179,7 @@ interactive_network <- function(igraph,
                                  communities = TRUE,
                                  cluster) {
   data1 <- visNetwork::toVisNetworkData(igraph)
-  data1$nodes$label=sub("\\_.*", "",  data1$nodes$label )
+  data1$nodes$label=strip_view_suffix(data1$nodes$label)
   data1$nodes$font.color <- "black"
   nodes1 <- data1$nodes
   edges1 <- data1$edges

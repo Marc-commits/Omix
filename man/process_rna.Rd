@@ -47,7 +47,7 @@ disease group variable}
 Set parameter as NULL if dependent is NULL.}
 
 \item{covariates}{Technical and biological covariates to use for
-DESEQ2 analysis and denoising}
+DESEQ2 analysis and denoising. \code{NULL} uses no covariates}
 
 \item{batch_correction}{Logical whether to perform batch correction. The
 processed matrix returned will be denoised for designated covariates and

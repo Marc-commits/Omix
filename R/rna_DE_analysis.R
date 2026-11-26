@@ -74,6 +74,12 @@ rna_DE_analysis <- function(multiassay,
 
   gene_id_conversion <- as.data.frame(
     multiassay@ExperimentList@listData[["rna_raw"]]@elementMetadata@listData)
+  # raw feature IDs as join key for non-Ensembl rownames (format_res_deseq())
+  if (nrow(gene_id_conversion) > 0) {
+    gene_id_conversion$feature_id <- rownames(multiassay[["rna_raw"]])
+  } else {
+    gene_id_conversion <- NULL
+  }
 
   res <- lapply(res, format_res_deseq,
     n_label = 20,

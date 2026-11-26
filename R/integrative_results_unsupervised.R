@@ -99,14 +99,14 @@ integrative_results_unsupervised <- function(multiassay,
   cell_type <- list()
   args=list( multiassay = multiassay,
              communities = lapply(communities_pos_neg$positive$communities, function(x) {
-               sub("\\_.*", "", x)
+               strip_view_suffix(x)
              }),
              ctd=ctd)
   cell_type$positive <- do.call(cell_type_enrichment,args)
   
   args=list( multiassay = multiassay,
              communities = lapply(communities_pos_neg$negative$communities, function(x) {
-               sub("\\_.*", "", x)
+               strip_view_suffix(x)
              }),
              ctd=ctd)
   
@@ -115,10 +115,10 @@ integrative_results_unsupervised <- function(multiassay,
   cli::cli_text("Functional enrichment of communities...")
 
   communities_positive <- lapply(communities_pos_neg$positive$communities, function(x) {
-    sub("\\_.*", "", x)
+    strip_view_suffix(x)
   })
   communities_negative <- lapply(communities_pos_neg$negative$communities, function(x) {
-    sub("\\_.*", "", x)
+    strip_view_suffix(x)
   })
 
   enrichment <- list()

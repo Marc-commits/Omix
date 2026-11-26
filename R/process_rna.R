@@ -20,7 +20,7 @@
 #' @param levels Character vector with reference group as first element.
 #' Set parameter as NULL if dependent is NULL.
 #' @param covariates Technical and biological covariates to use for
-#' DESEQ2 analysis and denoising
+#' DESEQ2 analysis and denoising. `NULL` uses no covariates
 #' @param batch_correction Logical whether to perform batch correction. The
 #' processed matrix returned will be denoised for designated covariates and
 #' technical batch.
@@ -69,18 +69,11 @@ process_rna <- function(multiassay,
     colData[[dependent]] <- factor(colData[[dependent]], levels = levels)
   }
 
-  if (is.null(batch)) {
-    design_formula <- as.formula(paste("~", dependent, "+", paste(covariates,
-      sep = " ",
-      collapse = " + "
-    )))
-  }
-  if (!is.null(batch)) {
-    design_formula <- as.formula(paste("~", dependent, "+", paste(covariates,
-      sep = " ",
-      collapse = " + "
-    ), "+ ", batch))
-  }
+  # NULL/empty covariates or batch are simply left out of the design
+  # (pasting a NULL used to leave a dangling "+" and crash as.formula())
+  design_terms <- c(dependent, covariates, batch)
+  design_terms <- design_terms[!is.na(design_terms) & nzchar(design_terms)]
+  design_formula <- as.formula(paste("~", paste(design_terms, collapse = " + ")))
 
   for (i in covariates) {
     rna_raw <- rna_raw[, !is.na(rna_raw[[paste(i)]])]
@@ -251,6 +244,9 @@ process_rna <- function(multiassay,
       "to remove technical artefacts, and",
       covariates, "as biological confounders"
     ))
+    if (length(covariates) == 0) {
+      covariates_data <- NULL
+    } else {
     suppressMessages({
     covariates_data <- MultiAssayExperiment::colData(rna_raw)[, c(covariates)]
     covariates_data <- data.frame(covariates_data)
@@ -259,6 +255,7 @@ process_rna <- function(multiassay,
     covariates_data <- covariates_data %>%
       mutate(across(where(is.factor), as.numeric))
     })
+    }
 
     for (i in colnames(covariates_data)) {
       if (all(!is.na(covariates_data[, i])) == FALSE) {

@@ -21,10 +21,9 @@ test_that("organism = 'mouse' resolves via org.Mm.eg.db with a corrected GENETYP
     rna_ids = c("ENSMUSG00000059552", "ENSMUSG00000017146"), # Trp53, Brca1
     protein_ids = c("Trp53", "Brca1")
   )
-  # the mixed-case protein symbols don't match get_ID_type()'s regex
-  # heuristic (a pre-existing, unrelated limitation) and are classified
-  # "not_identified"; suppress that expected warning to keep the test
-  # focused on the RNA/GENETYPE fix under test.
+  # the mixed-case protein symbols are classified "gene_name" by
+  # get_ID_type() (CyanoOmix #6); any remaining annotation warnings are
+  # unrelated to the RNA/GENETYPE fix under test.
   ma <- suppressWarnings(call_generate_multiassay(d, organism = "mouse"))
   rd <- SummarizedExperiment::rowData(ma[["rna_raw"]])
 

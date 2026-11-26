@@ -82,7 +82,8 @@ format_res_limma <- function(dt,
 #' @param padj adjusted p value threshold. Default to 0.05
 #' @param n_label maximum number of label on volcano plot
 #' @param gene_id_conversion Default to NULL. Can provide a dataframe
-#' with `gene_name` and `uniprot_id` columns to easily convert nomenclature.
+#' with `gene_name` and `gene_biotype` columns, keyed by an `ensembl_gene_id`
+#' or (if that is absent) a `feature_id` column matching the rownames of `dt`.
 #' @param filter_protein_coding Logical as whether to filter protein coding gene.
 #' Default to TRUE.
 #'
@@ -107,10 +108,23 @@ format_res_deseq <- function(dt,
     dplyr::arrange(padj)
 
   if (!is.null(gene_id_conversion)) {
-    dt$gene_name <- gene_id_conversion$gene_name[match(
-      dt$ensembl_name, gene_id_conversion$ensembl_gene_id)]
-    dt$gene_type <- gene_id_conversion$gene_biotype[match(
-      dt$ensembl_name, gene_id_conversion$ensembl_gene_id)]
+    # Join on Ensembl IDs when generate_multiassay() created them; otherwise
+    # on the raw feature IDs (rownames of `dt`), e.g. gene symbols or locus
+    # tags. Without either key the join used to return all-NA gene names.
+    key_col <- intersect(c("ensembl_gene_id", "feature_id"),
+                         colnames(gene_id_conversion))[1]
+    if (is.na(key_col)) {
+      cli::cli_warn(paste(
+        "gene_id_conversion has no ensembl_gene_id or feature_id column;",
+        "using the result rownames as gene names"
+      ))
+      dt$gene_name <- dt$ensembl_name
+      dt$gene_type <- NA_character_
+    } else {
+      idx <- match(dt$ensembl_name, gene_id_conversion[[key_col]])
+      dt$gene_name <- gene_id_conversion$gene_name[idx]
+      dt$gene_type <- gene_id_conversion$gene_biotype[idx]
+    }
   }
 
 

@@ -37,6 +37,10 @@ options(knitr.duplicate.label = "allow")
 
 ```{r, load_data, results='hide', include=FALSE}
 data <- qs::qread(params$metadata_path)
+# organism-specific sections; NULL when integrative_results_*() skipped them
+show_cell_type <- !is.null(data[["cell_type"]])
+show_TF <- !is.null(data[["TF"]])
+show_OpenTargets <- !is.null(data[["OpenTargets"]])
 list2env(data, envir = environment())
 database=param$database
 multimodal_omics=integration_param$multimodal_omics
@@ -324,17 +328,21 @@ corrplot::corrplot(t(moduleTraitCor[1:nrow(moduleTraitCor - 1), ]),
                               col = colorRampPalette(c("#2166AC","#4393C3","#92C5DE","#D1E5F0","#FDDBC7","#F4A582", "#D6604D","#B2182B"))(50))
 ```
 
+```{asis, echo=show_cell_type}
 ## Cell type enrichment {.tabset}
 
 ### Positive weights
+```
 
-```{r, echo=FALSE}
+```{r, eval=show_cell_type, include=show_cell_type, echo=FALSE}
 cell_type$positive$plots
 ```
 
+```{asis, echo=show_cell_type}
 ### Negative weights
+```
 
-```{r, echo=FALSE}
+```{r, eval=show_cell_type, include=show_cell_type, echo=FALSE}
 cell_type$negative$plots
 ```
 
@@ -362,11 +370,13 @@ for (i in names(functional_enrichment$negative)){
 plots
 ```
 
+```{asis, echo=show_TF}
 ## Transcription Factor enrichment {.tabset}
 
 ### Positive weights
+```
 
-```{r, echo=FALSE}
+```{r, eval=show_TF, include=show_TF, echo=FALSE}
 TF_pos=names(TF[["positive"]]@gsetB)
 TF_neg=names(TF[["negative"]]@gsetB)
 run_TF_pos= !is_empty(TF_pos) 
@@ -374,9 +384,11 @@ run_TF_neg= !is_empty(TF_neg)
 ```
 
 
+```{asis, echo=show_TF}
 #### Enrichment Heatmap
+```
 
-```{r  echo=FALSE}
+```{r, eval=show_TF, include=show_TF, echo=FALSE}
 
 if(run_TF_pos==TRUE ){
 GeneOverlap::drawHeatmap(TF$positive,what = c("odds.ratio"), log.scale = T, adj.p = F, cutoff = .05,
@@ -388,20 +400,24 @@ GeneOverlap::drawHeatmap(TF$positive,what = c("odds.ratio"), log.scale = T, adj.
 
 ```
 
+```{asis, echo=show_TF}
 #### TF - target gene circular plot
+```
 
-```{r fig.height = 10, fig.width=10}
+```{r, eval=show_TF, include=show_TF, fig.height = 10, fig.width=10}
 if(run_TF_pos==TRUE ){
 circos_TF(TF$positive)
 }
 ```
 
 
+```{asis, echo=show_TF}
 ### Negative weights
 
 #### Enrichment Heatmap
+```
 
-```{r  echo=FALSE}
+```{r, eval=show_TF, include=show_TF, echo=FALSE}
 if(run_TF_neg==TRUE ){
 GeneOverlap::drawHeatmap(TF$negative,what = c("odds.ratio"), log.scale = T, adj.p = F, cutoff = .05,
                           ncolused = 7, grid.col = c("Blues"), note.col = "red")
@@ -410,9 +426,11 @@ GeneOverlap::drawHeatmap(TF$negative,what = c("odds.ratio"), log.scale = T, adj.
 }
 ```
 
+```{asis, echo=show_TF}
 #### TF - target gene circular plot
+```
 
-```{r fig.height = 10, fig.width=10}
+```{r, eval=show_TF, include=show_TF, fig.height = 10, fig.width=10}
 
 if(run_TF_neg==TRUE ){
 circos_TF(TF$negative)
@@ -433,31 +451,39 @@ pseudotime_analysis$plot
 ```
 
 
+```{asis, echo=show_OpenTargets}
 ## Open Targets (Positive weights) {.tabset}
 
 ### Transcriptomics
+```
 
-```{r, echo=FALSE,fig.height=10}
+```{r, eval=show_OpenTargets, include=show_OpenTargets, echo=FALSE,fig.height=10}
 OpenTargets$positive$rna$plot
 ```
 
+```{asis, echo=show_OpenTargets}
 ### Proteomics
+```
 
-```{r, echo=FALSE,fig.height=10}
+```{r, eval=show_OpenTargets, include=show_OpenTargets, echo=FALSE,fig.height=10}
 OpenTargets$positive$protein$plot
 ```
 
+```{asis, echo=show_OpenTargets}
 ## Open Targets (Negative weights) {.tabset}
 
 ### Transcriptomics
+```
 
-```{r, echo=FALSE,fig.height=10}
+```{r, eval=show_OpenTargets, include=show_OpenTargets, echo=FALSE,fig.height=10}
 OpenTargets$negative$rna$plot
 ```
 
+```{asis, echo=show_OpenTargets}
 ### Proteomics
+```
 
-```{r, echo=FALSE,fig.height=10}
+```{r, eval=show_OpenTargets, include=show_OpenTargets, echo=FALSE,fig.height=10}
 OpenTargets$negative$protein$plot
 ```
 

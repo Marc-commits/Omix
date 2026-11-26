@@ -71,6 +71,16 @@ get_ID_names <- function(multiassay,
                           omic = "protein",
                           from = "uniprot_id",
                           to = "gene_name") {
+  slot <- if (omic == "protein") "protein_raw" else "rna_raw"
+  available <- names(
+    multiassay@ExperimentList@listData[[slot]]@elementMetadata@listData)
+  if (!all(c(from, to) %in% available)) {
+    cli::cli_warn(paste0(
+      "No '", from, "' -> '", to, "' mapping in ", slot,
+      " rowData; keeping the original IDs"
+    ))
+    return(as.character(id))
+  }
   if (omic == "protein") {
     elementMetadata <- data.frame(
       multiassay@ExperimentList@listData[["protein_raw"]]@elementMetadata@listData)
@@ -135,42 +145,60 @@ get_background <- function(multiassay,
 
 #' Get nomenclature type
 #'
-#' @param character_vector
+#' Classifies each of the first `n` IDs and returns the most frequent type.
+#' Mixed-case symbols and locus tags (e.g. `hemA`, `asl0046`,
+#' `PCC7120DELTA_RS00010`) count as `gene_name`.
+#'
+#' @param character_vector Feature IDs
+#' @param n Number of leading non-empty IDs to classify. Default to 100.
 #'
 #' @return ID type between `entrez_gene_id`,`gene_name`,`ensembl_gene_id`,
 #' `uniprot_id`, `not_identified`
 #' @keywords internal
 #'
 
-get_ID_type <- function(character_vector) {
-  test <- sub("\\;.*", "", character_vector[1])
+get_ID_type <- function(character_vector, n = 100) {
+  ids <- sub("\\;.*", "", as.character(character_vector))
+  ids <- ids[!is.na(ids) & nzchar(ids)]
+  ids <- utils::head(ids, n)
 
-  if (isTRUE(grepl(
-    "^[A-Z0-9-]+$|^C[0-9XY]+orf[0-9]+$",
-    test
-  ))) {
-    ID_type <- "gene_name"
-  }
-
-  if (isTRUE(grepl("ENS", test))) {
-    ID_type <- "ensembl_gene_id"
-  }
-
-  if (isTRUE(!grepl("\\D", test))) {
-    ID_type <- "entrez_gene_id"
-  }
-
-  if (isTRUE(grepl(
-    "[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}",
-    test
-  ))) {
-    ID_type <- "uniprot_id"
-  }
-
-  if (isTRUE(!exists("ID_type"))) {
+  # Classify each ID (later rules take precedence, as before), then take the
+  # most frequent type, so a single unusual first ID no longer decides the
+  # type of the whole vector.
+  classify_one <- function(test) {
     ID_type <- "not_identified"
-    cli::cli_warn("ID type not identified!")
+    # gene symbols incl. mixed-case symbols, locus tags and paralog
+    # suffixes (hemA, asl0046, PCC7120DELTA_RS00010, cas6_2)
+    if (grepl("^[A-Za-z][A-Za-z0-9._-]*$|^C[0-9XY]+orf[0-9]+$", test)) {
+      ID_type <- "gene_name"
+    }
+    if (grepl("ENS", test)) {
+      ID_type <- "ensembl_gene_id"
+    }
+    if (!grepl("\\D", test)) {
+      ID_type <- "entrez_gene_id"
+    }
+    if (grepl(
+      "[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}",
+      test
+    )) {
+      ID_type <- "uniprot_id"
+    }
+    ID_type
   }
+
+  types <- vapply(ids, classify_one, character(1), USE.NAMES = FALSE)
+  identified <- types[types != "not_identified"]
+
+  if (length(identified) == 0) {
+    cli::cli_warn("ID type not identified!")
+    return("not_identified")
+  }
+
+  counts <- table(factor(identified, levels = c(
+    "uniprot_id", "entrez_gene_id", "ensembl_gene_id", "gene_name"
+  )))
+  ID_type <- names(counts)[which.max(counts)]
 
   return(ID_type)
 }
@@ -242,7 +270,10 @@ get_multimodal_object <- function(multiassay,
       CompleteMulti@ExperimentList@listData[[paste(slots[1])]]))
     id_1 <- do.call(get_ID_type, args)
 
-    if (id_1 != "gene_name") {
+    if (id_1 == "not_identified") {
+      cli::cli_warn("RNA ID type not identified; keeping the original IDs")
+    }
+    if (id_1 == "ensembl_gene_id") {
       id3 <- rownames(CompleteMulti@ExperimentList@listData[[paste(slots[1])]])
       args3 <- list(
         multiassay = multiassay,
@@ -261,7 +292,10 @@ get_multimodal_object <- function(multiassay,
       CompleteMulti@ExperimentList@listData[[paste(slots[2])]]))
     id_2 <- do.call(get_ID_type, args)
 
-    if (id_2 != "gene_name") {
+    if (id_2 == "not_identified") {
+      cli::cli_warn("Protein ID type not identified; keeping the original IDs")
+    }
+    if (id_2 == "uniprot_id") {
       id4 <- rownames(CompleteMulti@ExperimentList@listData[[paste(slots[2])]])
       args4 <- list(
         multiassay = multiassay,

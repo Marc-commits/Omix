@@ -4,16 +4,20 @@
 \alias{get_ID_type}
 \title{Get nomenclature type}
 \usage{
-get_ID_type(character_vector)
+get_ID_type(character_vector, n = 100)
 }
 \arguments{
-\item{character_vector}{}
+\item{character_vector}{Feature IDs}
+
+\item{n}{Number of leading non-empty IDs to classify. Default to 100.}
 }
 \value{
 ID type between \code{entrez_gene_id},\code{gene_name},\code{ensembl_gene_id},
 \code{uniprot_id}, \code{not_identified}
 }
 \description{
-Get nomenclature type
+Classifies each of the first \code{n} IDs and returns the most frequent type.
+Mixed-case symbols and locus tags (e.g. \code{hemA}, \code{asl0046},
+\code{PCC7120DELTA_RS00010}) count as \code{gene_name}.
 }
 \keyword{internal}

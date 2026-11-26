@@ -331,20 +331,62 @@ annotation_lookup <- function(annotation_source, keys, keytype) {
     } else {
       "GENETYPE"
     }
-    df <- suppressMessages(AnnotationDbi::select(annotation_source$db,
-      keys = keys,
-      keytype = keytype,
-      columns = c("SYMBOL", biotype_col)
-    ))
+    db <- annotation_source$db
+    fallback <- list(
+      gene_name = as.character(keys),
+      gene_biotype = rep(NA_character_, length(keys))
+    )
+    # Minimal OrgDbs (e.g. AnnotationForge-built for a prokaryote) may lack
+    # the UNIPROT keytype or the GENETYPE column; degrade to the raw keys
+    # and NA biotypes instead of erroring.
+    if (!keytype %in% AnnotationDbi::keytypes(db)) {
+      cli::cli_warn(paste0(
+        "Annotation package has no '", keytype,
+        "' keytype; keeping the original IDs"
+      ))
+      return(fallback)
+    }
+    columns <- intersect(c("SYMBOL", biotype_col), AnnotationDbi::columns(db))
+    if (!biotype_col %in% columns) {
+      cli::cli_warn(paste0(
+        "Annotation package has no '", biotype_col,
+        "' column; gene_biotype will be NA"
+      ))
+    }
+    df <- tryCatch(
+      suppressMessages(AnnotationDbi::select(db,
+        keys = keys,
+        keytype = keytype,
+        columns = columns
+      )),
+      error = function(e) {
+        cli::cli_warn(paste0(
+          "Annotation lookup by '", keytype, "' failed (",
+          conditionMessage(e), "); keeping the original IDs"
+        ))
+        NULL
+      }
+    )
+    if (is.null(df)) {
+      return(fallback)
+    }
     idx <- match(keys, df[[keytype]])
-    gene_biotype <- df[[biotype_col]][idx]
+    gene_biotype <- if (biotype_col %in% colnames(df)) {
+      df[[biotype_col]][idx]
+    } else {
+      rep(NA_character_, length(keys))
+    }
     if (annotation_source$class == "OrgDb") {
       # normalise NCBI's GENETYPE (e.g. "protein-coding") to the
       # "protein_coding" convention used by EnsDb's GENEBIOTYPE and
       # matched elsewhere in the pipeline (e.g. process_rna()).
       gene_biotype <- gsub("-", "_", gene_biotype)
     }
-    gene_name <- df$SYMBOL[idx]
+    gene_name <- if ("SYMBOL" %in% colnames(df)) {
+      df$SYMBOL[idx]
+    } else {
+      rep(NA_character_, length(keys))
+    }
     # fall back to the raw key when the annotation source has no match,
     # rather than losing it to NA (e.g. a locus tag with no SYMBOL hit)
     gene_name[is.na(gene_name)] <- keys[is.na(gene_name)]
